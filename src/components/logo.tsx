@@ -26,7 +26,7 @@ export const Logo = ({
       <text
         x="24"
         y="15"
-        fontSize="16"
+        fontSize="18"
         fontWeight="600"
         letterSpacing="0.4"
         fontFamily="Inter, system-ui, sans-serif"

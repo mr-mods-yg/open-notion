@@ -82,14 +82,14 @@ export default function HeroSection() {
                 <section className="bg-muted/50 dark:bg-background overflow-hidden">
                     <div className="relative mx-auto max-w-5xl px-6 pt-28 lg:pt-24">
                         <div className="relative z-10 mx-auto max-w-2xl text-center">
-                            <h1 className="text-balance text-4xl font-semibold md:text-5xl lg:text-6xl">Modern Software testing reimagined</h1>
-                            <p className="text-muted-foreground mx-auto my-8 max-w-2xl text-xl">Officiis laudantium excepturi ducimus rerum dignissimos, and tempora nam vitae, excepturi ducimus iste provident dolores.</p>
+                            <h1 className="text-balance text-4xl font-semibold md:text-5xl lg:text-6xl">Managing Notes Becomes Easy.</h1>
+                            <p className="text-muted-foreground mx-auto my-8 max-w-2xl text-xl">OpenNotion is where you and your teams can share and manage notes so easily that will make you go crazy. Now a team of 6.7 feels like 67.</p>
 
                             <Button
                                 asChild
                                 size="lg">
                                 <Link href="/dashboard">
-                                    <span className="btn-label">Start Building</span>
+                                    <span className="btn-label">I want to join</span>
                                 </Link>
                             </Button>
                         </div>
@@ -118,7 +118,7 @@ export default function HeroSection() {
                 </section>
                 <section className="dark:bg-background bg-muted/50 relative z-10 py-16">
                     <div className="m-auto max-w-5xl px-6">
-                        <h2 className="text-center text-lg font-medium">Your favorite companies are our partners.</h2>
+                        <h2 className="text-center text-lg font-medium">Your favorite companies are not our partners. Because we care about you only.</h2>
                         <div className="mx-auto mt-20 flex max-w-4xl flex-wrap items-center justify-center gap-x-12 gap-y-8 sm:gap-x-16 sm:gap-y-12">
                             <img
                                 className="h-5 w-fit dark:invert"
