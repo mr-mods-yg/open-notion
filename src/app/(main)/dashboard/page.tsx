@@ -1,6 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { SiteHeader } from "@/components/site-header"
-import { Input } from "@/components/ui/input"
 import {
   SidebarInset,
   SidebarProvider,
@@ -18,8 +17,9 @@ export default function Page() {
         <div className="flex flex-1">
           <AppSidebar />
           <SidebarInset>
-            <div className="flex flex-1 flex-col gap-4 p-4">
-              <textarea placeholder="Your Text" className="text-xl" />
+            <div className="flex flex-1 flex-col gap-4 px-4 py-4 md:px-16 md:py-16">
+              <textarea placeholder="Your Title" className="flex-0 text-xl focus:outline-none focus:ring-0" />
+              <textarea placeholder="Your Description" className="flex-1 text-xl focus:outline-none focus:ring-0" />
             </div>
           </SidebarInset>
         </div>
