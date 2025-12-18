@@ -89,7 +89,7 @@ export default function HeroSection() {
                                 asChild
                                 size="lg">
                                 <Link href="/dashboard">
-                                    <span className="btn-label">I want to join</span>
+                                    <span className="btn-label">Get started</span>
                                 </Link>
                             </Button>
                         </div>
