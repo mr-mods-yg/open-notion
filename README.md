@@ -78,50 +78,6 @@ Before you begin, ensure you have the following installed:
 
     Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The page auto-updates as you edit the files.
 
-## 📁 Project Structure
-
-```bash
-open-notion
-├── app
-│   ├── api
-│   │   ├── auth
-│   │   │   └── [...nextauth]
-│   │   ├── example
-│   │   │   └── route.ts
-│   │   └── hello
-│   │       └── route.ts
-│   ├── components
-│   │   ├── ui
-│   │   │   ├── button.tsx
-│   │   │   ├── input.tsx
-│   │   │   └── ...other-ui-components
-│   │   └── layout.tsx
-│   ├── dashboard
-│   │   ├── page.tsx
-│   │   └── ...dashboard-specific-components
-│   ├── notes
-│   │   ├── [id]
-│   │   │   └── page.tsx
-│   │   ├── page.tsx
-│   │   └── ...note-specific-components
-│   ├── page.tsx
-│   └── ...other-app-directories-and-files
-├── prisma
-│   ├── migrations
-│   ├── schema.prisma
-│   └── seed.ts
-├── public
-│   ├── images
-│   └── ...public-assets
-├── styles
-│   ├── globals.css
-│   └── ...other-global-styles
-├── .env
-├── .gitignore
-├── package.json
-├── README.md
-└── tsconfig.json
-```
 
 ## 🛠 Technologies Used
 
@@ -151,7 +107,3 @@ Don't forget to give the project a star! Thanks again!
 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-## 📞 Contact
-
-Your Name - [your-email@example.com](mailto:your-email@example.com)
-Project Link: [https://github.com/your-username/open-notion](https://github.com/your-username/open-notion)
