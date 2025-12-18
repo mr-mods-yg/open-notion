@@ -1,4 +1,5 @@
 import { AppSidebar } from "@/components/app-sidebar"
+import TextEditor from "@/components/custom/TextEditor";
 import { SiteHeader } from "@/components/site-header"
 import {
   SidebarInset,
@@ -13,14 +14,11 @@ export default function Page() {
   return (
     <div className="[--header-height:calc(--spacing(14))]">
       <SidebarProvider className="flex flex-col">
-        <SiteHeader/>
-        <div className="flex-1">
+        <SiteHeader />
+        <div className="flex flex-1">
           <AppSidebar />
           <SidebarInset>
-            <div className="flex flex-1 flex-col gap-4 px-4 py-4 md:px-16 md:py-16">
-              <textarea placeholder="Your Title" className="flex-0 text-xl focus:outline-none focus:ring-0" />
-              <textarea placeholder="Your Description" className="flex-1 text-xl focus:outline-none focus:ring-0" />
-            </div>
+            <TextEditor />
           </SidebarInset>
         </div>
       </SidebarProvider>
