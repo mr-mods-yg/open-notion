@@ -2,7 +2,10 @@
 
 import * as React from "react"
 import {
+  AudioWaveform,
+  Command,
   FileText,
+  GalleryVerticalEnd,
   Home,
   LifeBuoy,
   PlusIcon,
@@ -23,6 +26,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
 import { useSession } from "@/lib/auth-client"
+import { TeamSwitcher } from "./team-switcher"
 
 const data = {
   user: {
@@ -30,6 +34,17 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
+  teams: [
+    {
+      name: "Workspace 1",
+    },
+    {
+      name: "Workspace 2",
+    },
+    {
+      name: "Workspace 3",
+    },
+  ],
   navMain: [
     {
       title: "New Page",
@@ -48,7 +63,7 @@ const data = {
     //   icon: LifeBuoy,
     // },
   ],
-  projects: [
+  pages: [
     {
       name: "Design Engineering",
       url: "#",
@@ -85,6 +100,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
     >
       <SidebarHeader>
+        <TeamSwitcher teams={data.teams} />
         <SidebarMenu>
           <SidebarMenuItem>
             <SidebarMenuButton size="lg" asChild>
@@ -110,7 +126,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {/* <NavMain items={data.navMain} /> */}
-        <NavProjects projects={data.projects} />
+        <NavProjects projects={data.pages} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

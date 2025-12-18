@@ -14,15 +14,18 @@ datasource db {
 }
 
 model User {
-  id            String    @id
+  id            String      @id
   name          String
   email         String
-  emailVerified Boolean   @default(false)
+  emailVerified Boolean     @default(false)
   image         String?
-  createdAt     DateTime  @default(now())
-  updatedAt     DateTime  @updatedAt
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
   sessions      Session[]
   accounts      Account[]
+  workspaces    Workspace[]
+  pages         Page[]
+  blocks        Block[]
 
   @@unique([email])
   @@map("user")
@@ -74,4 +77,60 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+model Workspace {
+  id     String @id() @default(uuid())
+  name   String
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  pages  Page[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@map("workspace")
+}
+
+model Page {
+  id          String    @id() @default(uuid())
+  name        String
+  userId      String
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workspaceId String
+  workspace   Workspace @relation(fields: [workspaceId], references: [id], onDelete: Cascade)
+  blocks      Block[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([workspaceId])
+  @@map("pages")
+}
+
+enum BlockType {
+  paragraph @map("paragraph")
+  todo      @map("todo")
+  heading   @map("heading")
+  code      @map("code")
+}
+
+model Block {
+  id   String    @id() @default(uuid())
+  type BlockType @default(paragraph)
+
+  order Float // ordering key 
+
+  content Json // polymorphism data
+
+  pageId String
+  page   Page   @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([pageId])
 }
