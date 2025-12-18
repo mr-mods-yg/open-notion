@@ -1,18 +1,12 @@
 "use client"
 
-import * as React from "react"
 import {
-  AudioWaveform,
-  Command,
   FileText,
-  GalleryVerticalEnd,
-  Home,
-  LifeBuoy,
   PlusIcon,
   SquarePen,
 } from "lucide-react"
-
-import { NavMain } from "@/components/nav-main"
+import ky from "ky";
+// import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
 import { NavSecondary } from "@/components/nav-secondary"
 import { NavUser } from "@/components/nav-user"
@@ -27,6 +21,10 @@ import {
 } from "@/components/ui/sidebar"
 import { useSession } from "@/lib/auth-client"
 import { TeamSwitcher } from "./team-switcher"
+import { Page, Workspace } from "@/generated/prisma/client";
+import { useQuery } from "@tanstack/react-query";
+import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 const data = {
   user: {
@@ -34,17 +32,6 @@ const data = {
     email: "m@example.com",
     avatar: "/avatars/shadcn.jpg",
   },
-  teams: [
-    {
-      name: "Workspace 1",
-    },
-    {
-      name: "Workspace 2",
-    },
-    {
-      name: "Workspace 3",
-    },
-  ],
   navMain: [
     {
       title: "New Page",
@@ -81,18 +68,41 @@ const data = {
     },
   ],
 }
-
+type PageCreateResponse = {
+  page: { id: string; name: string; }
+}
 export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+  const router = useRouter();
   const session = useSession();
   const user = session.data?.user;
+  const [workspace, setWorkspace] = useState<string>();
+  const workspaceQuery = useQuery<{ workspaces: Workspace[] }>({
+    queryKey: ['workspaces'], queryFn: () => {
+      return ky.get("/api/workspace/all").json();
+    }
+  })
+  const pageQuery = useQuery<{ pages: Page[] }>({
+    queryKey: ['pages', workspace],
+    queryFn: () => {
+      return ky.get(`/api/page/all/${workspace}`).json();
+    },
+    enabled: workspaceQuery.isSuccess && !!workspace
+  })
 
   if (!user) {
     return <></>
   }
+
   const userInfo = {
     name: user.name,
     email: user.email,
     avatar: user.image ?? "/avatars/shadcn.jpg",
+  }
+  if (workspaceQuery.isFetched && !workspace) {
+    setWorkspace(workspaceQuery.data?.workspaces[0].id)
+  }
+  if (pageQuery.isFetched) {
+    console.log(pageQuery.data);
   }
   return (
     <Sidebar
@@ -100,33 +110,30 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       {...props}
     >
       <SidebarHeader>
-        <TeamSwitcher teams={data.teams} />
+        {workspaceQuery.isFetched && <TeamSwitcher teams={workspaceQuery.data?.workspaces as { name: string }[]} />}
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex gap-2 items-center px-1">
-                  <Home className="size-5" />
-                  Home
-                </div>
-              </a>
-            </SidebarMenuButton>
-          </SidebarMenuItem>
-          <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild>
-              <a href="#">
-                <div className="flex gap-2 items-center px-1">
-                  <SquarePen className="size-5" />
-                  New Page
-                </div>
-              </a>
+            <SidebarMenuButton size="lg" asChild onClick={async () => {
+              if (workspace) {
+                const res: PageCreateResponse = await ky.post("/api/page", {
+                  json: {
+                    workspaceId: workspace
+                  }
+                }).json()
+                router.push("/page/" + res.page.id);
+              }
+            }}>
+              <div className="flex gap-2 items-center px-1">
+                <SquarePen className="size-5" />
+                New Page
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
         {/* <NavMain items={data.navMain} /> */}
-        <NavProjects projects={data.pages} />
+        <NavProjects pages={pageQuery.data?.pages as { name: string, id: string }[]} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

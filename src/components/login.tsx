@@ -12,7 +12,7 @@ export default function LoginPage({ handleLogin }: { handleLogin: () => void }) 
             <Logo/>
           </Link>
           <h1 className="mb-1 mt-4 text-xl font-semibold">
-            Sign In to Open-Notion
+            Sign In to OpenNotion
           </h1>
           <p>Welcome back! Sign in to continue</p>
         </div>

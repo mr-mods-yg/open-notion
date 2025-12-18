@@ -16,28 +16,25 @@ export const auth = betterAuth({
     },
     hooks: {
         after: createAuthMiddleware(async (ctx) => {
-            // create new workspace when the user has signed up
-            if (ctx.path.startsWith("/sign-up")) {
-                const newSession = ctx.context.newSession;
-                const userId = newSession?.user.id;
-                if (newSession && userId) {
-                    
-                    await prisma.$transaction(async (tx) => {
-                        const existingWorkspace = await tx.workspace.findFirst({
-                            where: {
+            const newSession = ctx.context.newSession;
+            if (ctx.path === "/callback/:id" && newSession) {
+                const userId = newSession.user.id;
+                // create new workspace when the user has signed up
+                await prisma.$transaction(async (tx) => {
+                    const existingWorkspace = await tx.workspace.findFirst({
+                        where: {
+                            userId: userId
+                        }
+                    })
+                    if (!existingWorkspace) {
+                        await tx.workspace.create({
+                            data: {
+                                name: "Workspace 1",
                                 userId: userId
                             }
                         })
-                        if (!existingWorkspace) {
-                            await tx.workspace.create({
-                                data: {
-                                    name: "Workspace 1",
-                                    userId: userId
-                                }
-                            })
-                        }
-                    })
-                }
+                    }
+                })
             }
         }),
     }

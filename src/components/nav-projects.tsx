@@ -1,6 +1,7 @@
 "use client"
 
 import {
+  FileText,
   Folder,
   MoreHorizontal,
   Share,
@@ -26,12 +27,11 @@ import {
 } from "@/components/ui/sidebar"
 
 export function NavProjects({
-  projects,
+  pages,
 }: {
-  projects: {
+  pages: {
     name: string
-    url: string
-    icon: LucideIcon
+    id: string
   }[]
 }) {
   const { isMobile } = useSidebar()
@@ -40,11 +40,11 @@ export function NavProjects({
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Pages</SidebarGroupLabel>
       <SidebarMenu>
-        {projects.map((item) => (
+        {pages?.map((item) => (
           <SidebarMenuItem key={item.name}>
             <SidebarMenuButton asChild>
-              <a href={item.url}>
-                <item.icon />
+              <a href={"/page/"+item.id}>
+                <FileText />
                 <span>{item.name}</span>
               </a>
             </SidebarMenuButton>
