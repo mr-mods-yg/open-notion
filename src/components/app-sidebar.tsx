@@ -81,7 +81,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       return ky.get("/api/workspace/all").json();
     }
   })
-  const pageQuery = useQuery<{ pages: Page[] }>({
+
+  const pagesQuery = useQuery<{ pages: Page[] }>({
     queryKey: ['pages', workspace],
     queryFn: () => {
       return ky.get(`/api/page/all/${workspace}`).json();
@@ -101,8 +102,8 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   if (workspaceQuery.isFetched && !workspace) {
     setWorkspace(workspaceQuery.data?.workspaces[0].id)
   }
-  if (pageQuery.isFetched) {
-    console.log(pageQuery.data);
+  if (pagesQuery.isFetched) {
+    console.log(pagesQuery.data);
   }
   return (
     <Sidebar
@@ -120,6 +121,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
                     workspaceId: workspace
                   }
                 }).json()
+                pagesQuery.refetch();
                 router.push("/page/" + res.page.id);
               }
             }}>
@@ -133,7 +135,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {/* <NavMain items={data.navMain} /> */}
-        <NavProjects pages={pageQuery.data?.pages as { name: string, id: string }[]} />
+        <NavProjects pages={pagesQuery.data?.pages as { name: string, id: string }[]} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
