@@ -102,9 +102,6 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   if (workspaceQuery.isFetched && !workspace) {
     setWorkspace(workspaceQuery.data?.workspaces[0].id)
   }
-  if (pagesQuery.isFetched) {
-    console.log(pagesQuery.data);
-  }
   return (
     <Sidebar
       className="top-(--header-height) h-[calc(100svh-var(--header-height))]!"

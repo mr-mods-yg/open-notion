@@ -20,7 +20,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pag
         });
     }
     const body = await req.json();
-    if (!body.text) {
+    if (body.text==null) {
         return NextResponse.json({ error: "Bad Request" }, {
             status: 400
         });
@@ -36,7 +36,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pag
             type: body.type || "paragraph",
             userId,
             pageId,
-            order: blocksLength+1,
+            order: body.order || blocksLength+1,
             content: { text: body.text }
         }
     })

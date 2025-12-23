@@ -20,7 +20,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ bl
         });
     }
     const body = await req.json();
-    if (!body.text) {
+    if (body.text==null) {
         return NextResponse.json({ error: "Bad Request" }, {
             status: 400
         });
@@ -35,4 +35,29 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ bl
         }
     })
     return NextResponse.json({ block });
+}
+
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ blockId: string }> }) {
+    const session = await auth.api.getSession({
+        headers: (await headers())
+    });
+    if (!session) {
+        return NextResponse.json({ error: "Unauthenticated" }, {
+            status: 401
+        });
+    }
+    const userId = session?.user.id;
+    const blockId = (await params).blockId;
+    try {
+        await prisma.block.delete({
+            where: {
+                id: blockId,
+                userId,
+            },
+        })
+        return NextResponse.json({ success: true, deleted: true })
+    } catch (error) {
+        console.log((error as Error).message);
+        return NextResponse.json({ success: false }, {status: 500});
+    }
 }
