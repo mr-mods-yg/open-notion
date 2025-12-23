@@ -13,24 +13,19 @@ export default function MainLayout({
     children: React.ReactNode;
 }>) {
     return (
-        <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange>
-            <QueryProvider>
-                <div className="[--header-height:calc(--spacing(14))]">
-                    <SidebarProvider className="flex flex-col">
-                        <SiteHeader />
-                        <div className="flex flex-1">
-                            <AppSidebar />
-                            <SidebarInset>
-                                {children}
-                            </SidebarInset>
-                        </div>
-                    </SidebarProvider>
-                </div>
-            </QueryProvider>
-        </ThemeProvider>
+
+        <QueryProvider>
+            <div className="[--header-height:calc(--spacing(14))]">
+                <SidebarProvider className="flex flex-col">
+                    <SiteHeader />
+                    <div className="flex flex-1">
+                        <AppSidebar />
+                        <SidebarInset>
+                            {children}
+                        </SidebarInset>
+                    </div>
+                </SidebarProvider>
+            </div>
+        </QueryProvider>
     );
 }
