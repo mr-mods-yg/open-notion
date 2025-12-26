@@ -5,6 +5,7 @@ import { BlockContent } from "@/types/block";
 import { useMutation } from "@tanstack/react-query"
 import ky from "ky"
 import React, { useEffect, useState } from "react"
+import TextareaAutosize, { TextareaAutosizeProps } from 'react-textarea-autosize';
 
 
 type UpdateBlockMutation = {
@@ -13,7 +14,9 @@ type UpdateBlockMutation = {
 }
 type BlockEditorProps = {
     block: Block;
-} & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+} & TextareaAutosizeProps & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+
+const URL_REGEX = /(https?:\/\/[^\s]+|www\.[^\s]+)/g;
 
 const BlockEditor = React.forwardRef<HTMLTextAreaElement, BlockEditorProps>(({ block, ...props }, ref) => {
     const [blockText, setBlockText] = useState<string>((block.content as BlockContent).text);
@@ -59,7 +62,7 @@ const BlockEditor = React.forwardRef<HTMLTextAreaElement, BlockEditorProps>(({ b
         if (blockText === (block.content as BlockContent).text) return
         const timeout = setTimeout(() => {
             updateBlockMutation.mutate({ blockId: block.id, text: blockText })
-        }, 700)
+        }, 300)
 
         return () => {
             clearTimeout(timeout);
@@ -70,13 +73,57 @@ const BlockEditor = React.forwardRef<HTMLTextAreaElement, BlockEditorProps>(({ b
         setBlockText((block.content as BlockContent).text)
     }, [block.content])
     // console.log(blockText)
-    return <textarea ref={ref} key={block.id} rows={1}
-        value={blockText}
-        onChange={(e) => setBlockText(e.target.value)}
-        {...props}
-        className='text-xl focus:outline-none focus:ring-0 resize-none border-l-2 px-1' />
+    return <div className="relative w-full">
+        {/* Highlight layer */}
+        <div
+            className="pointer-events-none absolute inset-0 whitespace-pre-wrap wrap-break-word text-base sm:text-lg border-l-2 pl-2"
+            aria-hidden
+        >
+            <HighlightedText text={blockText} />
+        </div>
+
+        {/* Textarea */}
+        <TextareaAutosize ref={ref} key={block.id}
+            value={blockText}
+            onChange={(e) => setBlockText(e.target.value)}
+            {...props}
+            className='relative w-full text-base sm:text-lg bg-transparent text-transparent focus:outline-none focus:ring-0 caret-black resize-none border-l-2 pl-2 outline-none' />
+    </div>
 });
 
 BlockEditor.displayName = 'BlockEditor';
+
+function HighlightedText({ text }: { text: string }) {
+    const parts: { text: string; isUrl: boolean }[] = [];
+    let lastIndex = 0;
+
+    text.replace(URL_REGEX, (match, _, offset) => {
+        if (offset > lastIndex) {
+            parts.push({ text: text.slice(lastIndex, offset), isUrl: false });
+        }
+        parts.push({ text: match, isUrl: true });
+        lastIndex = offset + match.length;
+        return match;
+    });
+
+    if (lastIndex < text.length) {
+        parts.push({ text: text.slice(lastIndex), isUrl: false });
+    }
+
+    return (
+        <span>
+            {parts.map((p, i) =>
+                p.isUrl ? (
+                    <span key={i} className="text-blue-700 dark:text-blue-400 underline">
+                        {p.text}
+                    </span>
+                ) : (
+                    <span key={i}>{p.text}</span>
+                )
+            )}
+        </span>
+    );
+}
+
 
 export default BlockEditor
