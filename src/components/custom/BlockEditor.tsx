@@ -87,7 +87,7 @@ const BlockEditor = React.forwardRef<HTMLTextAreaElement, BlockEditorProps>(({ b
             value={blockText}
             onChange={(e) => setBlockText(e.target.value)}
             {...props}
-            className='relative w-full text-base sm:text-lg bg-transparent text-transparent focus:outline-none focus:ring-0 caret-black resize-none border-l-2 pl-2 outline-none' />
+            className='relative w-full text-base sm:text-lg bg-transparent text-transparent focus:outline-none focus:ring-0 caret-black dark:caret-white resize-none border-l-2 border-l-transparent pl-2 outline-none' />
     </div>
 });
 
