@@ -1,6 +1,6 @@
 "use client";
 
-import TextPageEditor from "@/components/custom/TextPageEditor";
+import TextPageEditor from "@/components/custom/editor/TextPageEditor";
 import { useParams } from "next/navigation"
 
 function Page() {

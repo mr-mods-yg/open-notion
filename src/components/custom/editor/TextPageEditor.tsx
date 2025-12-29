@@ -26,12 +26,24 @@ type DeleteBlockMutation = {
     prevBlockId?: string
 }
 
+function placeCursorAtEnd(el: HTMLElement) {
+    el.focus();
+
+    const range = document.createRange();
+    range.selectNodeContents(el);
+    range.collapse(false); // move to end
+
+    const selection = window.getSelection();
+    selection?.removeAllRanges();
+    selection?.addRange(range);
+}
+
 const TextPageEditor = ({ pageId }: { pageId: string }) => {
     const [inputTitle, setInputTitle] = useState<string>();
     const [inputFirstBlock, setInputFirstBlock] = useState<string>();
     const [firstBlockId, setFirstBlockId] = React.useState<string | null>(null)
     const [pendingFocusId, setPendingFocusId] = useState<string | null>(null)
-    const blockRefs = useRef<Record<string, HTMLTextAreaElement | null>>({})
+    const blockRefs = useRef<Record<string, HTMLDivElement | null>>({})
 
     const session = useSession();
     const userId = session.data?.user.id;
@@ -114,7 +126,8 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
             })
             requestAnimationFrame(() => {
                 requestAnimationFrame(() => {
-                    blockRefs.current[data.block.id]?.focus();
+                    const newBlock = blockRefs.current[data.block.id];
+                    newBlock?.focus();
                 });
             });
 
@@ -145,7 +158,9 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
         },
         onSuccess(data, variables) {
             if (variables.prevBlockId) {
-                blockRefs.current[variables.prevBlockId]?.focus();
+                const prevBlock = blockRefs.current[variables.prevBlockId];
+                prevBlock?.focus();
+                if (prevBlock) placeCursorAtEnd(prevBlock);
 
             }
         },
@@ -192,16 +207,16 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
         }
     }, [inputFirstBlock, firstBlockId, createBlockMutation])
 
-    const HandleBlockKeyDown = ({ e, currentBlockId }: { e: React.KeyboardEvent<HTMLTextAreaElement>, currentBlockId: string}) => {
+    const HandleBlockKeyDown = ({ e, currentBlockId }: { e: React.KeyboardEvent<HTMLDivElement>, currentBlockId: string }) => {
         if (e.key != "ArrowUp" && e.key != "ArrowDown" && e.key != "Enter" && e.key != "Backspace") return;
         const blocksData = blocksQuery.data?.blocks;
-        if(!blocksData) return;
-        
+        if (!blocksData) return;
+
         const index = blocksData.findIndex(b => b.id === currentBlockId);
         const prevBlock = index > 0 ? blocksData[index - 1] : null;
         const blockContent = blocksData[index].content;
 
-        if (e.key == "Backspace" && blockContent && (blockContent as BlockContent).text == "") {
+        if (e.key == "Backspace" && blockContent && (blockContent as BlockContent).text.trim().length === 0) {
             deleteBlockMutation.mutate({ blockId: currentBlockId, prevBlockId: prevBlock?.id })
         }
         if (e.key == "Backspace") return; // makes sure backspace key is functional
@@ -211,15 +226,20 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
         // ARROWS HANDLING
         const currentBlock = index >= 0 ? blocksData[index] : null;
         const nextBlock = index < blocksData.length - 1 ? blocksData[index + 1] : null;
-        
+
         if (e.key === "ArrowUp" && prevBlock) {
             e.preventDefault()
-            blockRefs.current[prevBlock.id]?.focus()
+            const prevBlockRef = blockRefs.current[prevBlock.id];
+            prevBlockRef?.focus()
+            if (prevBlockRef) placeCursorAtEnd(prevBlockRef);
         }
 
         if (e.key === "ArrowDown" && nextBlock) {
             e.preventDefault()
-            blockRefs.current[nextBlock.id]?.focus()
+            const nextblockRef = blockRefs.current[nextBlock.id];
+            nextblockRef?.focus()
+            if (nextblockRef) placeCursorAtEnd(nextblockRef);
+
         }
 
         if (e.key !== "Enter") return // move in this block only if Enter key is pressed

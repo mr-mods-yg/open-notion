@@ -4,9 +4,11 @@ import { queryClient } from "@/providers/QueryProvider"
 import { BlockContent } from "@/types/block";
 import { useMutation } from "@tanstack/react-query"
 import ky from "ky"
+import { ExternalLink } from "lucide-react";
 import React, { useEffect, useState } from "react"
-import TextareaAutosize, { TextareaAutosizeProps } from 'react-textarea-autosize';
-
+// import { TextareaAutosizeProps } from 'react-textarea-autosize';
+// import SlashMenu from "../SlashMenu";
+// import { filterCommands } from "@/commands/SlashCommands";
 
 type UpdateBlockMutation = {
     text: string;
@@ -14,12 +16,29 @@ type UpdateBlockMutation = {
 }
 type BlockEditorProps = {
     block: Block;
-} & TextareaAutosizeProps & React.TextareaHTMLAttributes<HTMLTextAreaElement>;
+} & React.HTMLAttributes<HTMLDivElement>;
 
 const URL_REGEX = /(https?:\/\/[^\s]+|www\.[^\s]+)/g;
 
-const BlockEditor = React.forwardRef<HTMLTextAreaElement, BlockEditorProps>(({ block, ...props }, ref) => {
+function useForwardedRef<T>(ref: React.ForwardedRef<T>) {
+    const innerRef = React.useRef<T>(null);
+
+    React.useImperativeHandle(ref, () => innerRef.current as T);
+
+    return innerRef;
+}
+
+const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block, ...props }, ref) => {
     const [blockText, setBlockText] = useState<string>((block.content as BlockContent).text);
+    // const [menu, setMenu] = useState<{
+    //     open: boolean;
+    //     query: string;
+    //     slashIndex: number;
+    // } | null>(null);
+    // const [menuPos, setMenuPos] = useState({ left: 0 });
+
+    const contentRef = useForwardedRef(ref);
+
     const updateBlockMutation = useMutation({
         mutationFn: async ({ text }: UpdateBlockMutation) => {
             return ky.patch("/api/block/" + block.id, {
@@ -69,10 +88,21 @@ const BlockEditor = React.forwardRef<HTMLTextAreaElement, BlockEditorProps>(({ b
         }
     }, [blockText, block.content, block.id, updateBlockMutation])
 
+    // console.log(menuPos)
+
+
     React.useEffect(() => {
-        setBlockText((block.content as BlockContent).text)
-    }, [block.content])
+        if (!contentRef.current) return;
+
+        contentRef.current.innerText =
+            (block.content as BlockContent).text ?? "";
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, []);
+
     // console.log(blockText)
+    // const filtered = menu
+    //     ? filterCommands(menu.query)
+    //     : [];
     return <div className="relative w-full">
         {/* Highlight layer */}
         <div
@@ -82,12 +112,28 @@ const BlockEditor = React.forwardRef<HTMLTextAreaElement, BlockEditorProps>(({ b
             <HighlightedText text={blockText} />
         </div>
 
-        {/* Textarea */}
-        <TextareaAutosize ref={ref} key={block.id}
-            value={blockText}
-            onChange={(e) => setBlockText(e.target.value)}
+        <div contentEditable suppressContentEditableWarning
+            ref={contentRef}
+            className="border-l-2 pl-2 focus:outline-none text-transparent bg-transparent focus:ring-0 text-base sm:text-lg caret-black dark:caret-white"
+            onInput={(e) => { setBlockText(e.currentTarget.innerText); }}
             {...props}
-            className='relative w-full text-base sm:text-lg bg-transparent text-transparent focus:outline-none focus:ring-0 caret-black dark:caret-white resize-none border-l-2 border-l-transparent pl-2 outline-none' />
+
+        />
+
+
+        {/* Textarea */}
+        {/* <TextareaAutosize ref={textareaRef}
+            value={blockText}
+            onChange={(e) => { handleBlockChange(e); setBlockText(e.target.value) }}
+            {...props}
+            className='relative w-full text-base sm:text-lg bg-transparent text-transparent focus:outline-none focus:ring-0 caret-black dark:caret-white resize-none border-l-2 border-l-transparent pl-2 outline-none' /> */}
+        {/* {menu?.open && filtered.length > 0 && (
+            <SlashMenu
+                items={filtered}
+                onSelect={() => { }}
+                position={menuPos}
+            />
+        )} */}
     </div>
 });
 
@@ -95,6 +141,7 @@ BlockEditor.displayName = 'BlockEditor';
 
 function HighlightedText({ text }: { text: string }) {
     const parts: { text: string; isUrl: boolean }[] = [];
+    const [hoverLink, setHoverLink] = useState<string | null>();
     let lastIndex = 0;
 
     text.replace(URL_REGEX, (match, _, offset) => {
@@ -112,11 +159,26 @@ function HighlightedText({ text }: { text: string }) {
 
     return (
         <span>
+
             {parts.map((p, i) =>
                 p.isUrl ? (
-                    <span key={i} className="text-blue-700 dark:text-blue-400 underline">
-                        {p.text}
+                    <span key={i}>
+
+                        <span className="text-blue-700 dark:text-blue-400 underline pointer-events-auto cursor-pointer"
+                            onMouseEnter={() => setHoverLink(p.text)}
+                            onMouseLeave={() => setHoverLink(null)}
+                            onClick={() => { window.open(p.text, '_blank'); }}
+                        >
+
+                            {p.text}
+                        </span>
+                        {hoverLink && (
+                            <div className="absolute z-50 bg-foreground text-background text-xs px-2 py-1 rounded flex gap-1">
+                                Open link <ExternalLink size={15} />
+                            </div>
+                        )}
                     </span>
+
                 ) : (
                     <span key={i}>{p.text}</span>
                 )
