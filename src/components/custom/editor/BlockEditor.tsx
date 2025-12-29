@@ -141,7 +141,7 @@ BlockEditor.displayName = 'BlockEditor';
 
 function HighlightedText({ text }: { text: string }) {
     const parts: { text: string; isUrl: boolean }[] = [];
-    const [hoverLink, setHoverLink] = useState<string | null>();
+    const [hoverLink, setHoverLink] = useState<string | null>(null);
     let lastIndex = 0;
 
     text.replace(URL_REGEX, (match, _, offset) => {
@@ -159,26 +159,52 @@ function HighlightedText({ text }: { text: string }) {
 
     return (
         <span>
-
             {parts.map((p, i) =>
                 p.isUrl ? (
-                    <span key={i}>
-
-                        <span className="text-blue-700 dark:text-blue-400 underline pointer-events-auto cursor-pointer"
-                            onMouseEnter={() => setHoverLink(p.text)}
-                            onMouseLeave={() => setHoverLink(null)}
-                            onClick={() => { window.open(p.text, '_blank'); }}
+                    <span
+                        key={i}
+                        className="relative inline-block"
+                        onMouseEnter={() => setHoverLink(p.text)}
+                        onMouseLeave={() => setHoverLink(null)}
+                    >
+                        {/* link */}
+                        <span
+                            className="
+                                text-blue-700 dark:text-blue-400
+                                underline
+                                pointer-events-auto
+                                cursor-pointer
+                            "
+                            onMouseDown={(e) => {
+                                if (!(e.ctrlKey || e.metaKey)) return;
+                                e.preventDefault();
+                                window.open(
+                                    p.text.startsWith("http") ? p.text : `https://${p.text}`,
+                                    "_blank"
+                                );
+                            }}
                         >
-
                             {p.text}
                         </span>
-                        {hoverLink && (
-                            <div className="absolute z-50 bg-foreground text-background text-xs px-2 py-1 rounded flex gap-1">
+
+                        {/* tooltip */}
+                        {hoverLink === p.text && (
+                            <span
+                                className="
+                                    absolute left-0 top-full mt-1
+                                    z-50
+                                    bg-foreground text-background
+                                    text-xs
+                                    px-2 py-1
+                                    rounded
+                                    whitespace-nowrap
+                                    shadow flex gap-1
+                                    "
+                            >
                                 Open link <ExternalLink size={15} />
-                            </div>
+                            </span>
                         )}
                     </span>
-
                 ) : (
                     <span key={i}>{p.text}</span>
                 )
