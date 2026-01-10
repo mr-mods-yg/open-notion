@@ -175,13 +175,11 @@ function HighlightedText({ text }: { text: string }) {
                                 pointer-events-auto
                                 cursor-pointer
                             "
-                            onMouseDown={(e) => {
-                                if (!(e.ctrlKey || e.metaKey)) return;
+                            onClick={(e) => {
                                 e.preventDefault();
-                                window.open(
-                                    p.text.startsWith("http") ? p.text : `https://${p.text}`,
-                                    "_blank"
-                                );
+                                e.stopPropagation();
+                                const url = p.text.startsWith("http") ? p.text : `https://${p.text}`;
+                                window.open(url, "_blank");
                             }}
                         >
                             {p.text}
