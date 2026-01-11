@@ -214,10 +214,11 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
 
         const index = blocksData.findIndex(b => b.id === currentBlockId);
         const prevBlock = index > 0 ? blocksData[index - 1] : null;
+        // const blockType = blocksData[index].type;
         const blockContent = blocksData[index].content;
 
         if (e.key == "Backspace" && blockContent && (blockContent as BlockContent).text.trim().length === 0) {
-            deleteBlockMutation.mutate({ blockId: currentBlockId, prevBlockId: prevBlock?.id })
+            deleteBlockMutation.mutate({ blockId: currentBlockId, prevBlockId: prevBlock?.id });
         }
         if (e.key == "Backspace") return; // makes sure backspace key is functional
 

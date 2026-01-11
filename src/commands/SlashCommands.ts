@@ -2,40 +2,19 @@ export type SlashCommand = {
   id: string;
   label: string;
   keywords: string[];
-  insert: () => string;
 };
 
 export const SLASH_COMMANDS: SlashCommand[] = [
   {
-    id: "h1",
-    label: "Heading 1",
-    keywords: ["h", "heading", "title"],
-    insert: () => "# ",
-  },
-  {
-    id: "h2",
-    label: "Heading 2",
-    keywords: ["h2", "heading"],
-    insert: () => "## ",
-  },
-  {
     id: "todo",
     label: "Todo",
     keywords: ["todo", "task", "checkbox"],
-    insert: () => "- [ ] ",
   },
   {
-    id: "quote",
-    label: "Quote",
-    keywords: ["quote", "blockquote"],
-    insert: () => "> ",
-  },
-  {
-    id: "divider",
-    label: "Divider",
-    keywords: ["divider", "hr", "line"],
-    insert: () => "---\n",
-  },
+    id: "paragraph",
+    label: "Paragraph",
+    keywords: ["paragraph"],
+  }
 ];
 
 export function filterCommands(query: string) {

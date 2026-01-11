@@ -16,7 +16,7 @@ function SlashMenu({
                 <div
                     key={cmd.id}
                     onClick={() => onSelect(cmd)}
-                    className="px-3 py-2 cursor-pointer hover:bg-foreground/50"
+                    className="px-3 py-2 cursor-pointer first:rounded-t-md last:rounded-b-md hover:bg-foreground/50"
                 >
                     {cmd.label}
                 </div>
