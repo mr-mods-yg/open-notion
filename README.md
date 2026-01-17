@@ -1,104 +1,84 @@
 # Open Notion
 
-Open Notion is a powerful and flexible note-taking and workspace application, inspired by Notion. It provides a collaborative environment for organizing your thoughts, projects, and information with a rich text editor, user authentication, and a structured dashboard.
+Open Notion is a powerful and flexible note-taking and workspace application. It provides a collaborative environment for organizing thoughts, projects, and information with a rich text editor, secure authentication, and a structured dashboard.
 
-## ✨ Features
+## Technologies
 
-*   **User Authentication**: Secure user login and registration powered by NextAuth.js.
-*   **Personal Workspaces**: Create and manage your own private workspaces.
-*   **Rich Text Editor**: A custom text editor for creating detailed and organized notes.
-*   **Dashboard**: A personalized dashboard to manage your notes and projects.
-*   **Database Integration**: Robust data management using Prisma and PostgreSQL.
+This project is built using the following modern web technologies:
 
-## 🚀 Getting Started
+-   **Next.js 16**: React framework for production.
+-   **React 19**: Library for building user interfaces.
+-   **Prisma**: Next-generation ORM for Node.js and TypeScript.
+-   **PostgreSQL**: Robust relational database system.
+-   **Better Auth**: Authentication library for secure user management.
+-   **Tailwind CSS 4**: Utility-first CSS framework for styling.
+-   **Tanstack Query**: Powerful asynchronous state management.
+-   **Shadcn/ui**: styled, accessible components for building high-quality design systems.
+-   **Lucide React**: Beautiful and consistent icon library.
 
-Follow these instructions to set up and run Open Notion on your local machine.
+## Features
+
+-   **User Authentication**: Secure login and signup flows using Better Auth (includes Google OAuth support).
+-   **Personal Workspaces**: Create and manage private workspaces for different contexts. Currently only one workspace is allowed.
+-   **Responsive Design**: Optimized for various screen sizes.
+-   **Database Integration**: Efficient data handling with Prisma and PostgreSQL.
+-   **Modern UI**: Clean and accessible user interface built with shadcn/ui and Tailwind CSS.
+
+## Getting Started
+
+Follow these steps to set up the project locally on your machine.
 
 ### Prerequisites
 
-Before you begin, ensure you have the following installed:
+Ensure you have the following installed:
 
-*   [Node.js](https://nodejs.org/en/) (v18 or higher recommended)
-*   [npm](https://www.npmjs.com/) or [Yarn](https://yarnpkg.com/) or [pnpm](https://pnpm.io/) or [Bun](https://bun.sh/)
-*   [PostgreSQL](https://www.postgresql.org/) database
+-   Node.js (Latest LTS version recommended)
+-   npm, yarn, pnpm, or bun
+-   PostgreSQL
 
 ### Installation
 
-1.  **Clone the repository**:
+1. Clone the repository:
 
     ```bash
     git clone https://github.com/your-username/open-notion.git
     cd open-notion
-    ```
-
-2.  **Install dependencies**:
+    
+2. Install dependencies:
 
     ```bash
     npm install
-    # or
-    yarn install
-    # or
-    pnpm install
-    # or
-    bun install
     ```
 
-3.  **Environment Variables**:
-
-    Create a `.env` file in the root of the project based on `.env.example` (if available, otherwise create it with the following):
+3. Configure Environment Variables:
+   Create a `.env` file in the root directory and add the following variables. You can reference `.env.example`.
 
     ```env
+    GOOGLE_CLIENT_ID=your_google_client_id
+    GOOGLE_CLIENT_SECRET=your_google_client_secret
+
+    BETTER_AUTH_SECRET=your_generated_secret_string
+    BETTER_AUTH_URL=http://localhost:3700
+
     DATABASE_URL="postgresql://user:password@localhost:5432/open_notion_db"
-    NEXTAUTH_SECRET="YOUR_NEXTAUTH_SECRET"
-    NEXTAUTH_URL="http://localhost:3000"
     ```
 
-    *   Replace `"postgresql://user:password@localhost:5432/open_notion_db"` with your PostgreSQL connection string.
-    *   Generate a strong secret for `NEXTAUTH_SECRET`. You can use `openssl rand -base64 32` in your terminal.
-
-4.  **Database Setup**:
-
-    Run Prisma migrations to set up your database schema:
+4. Setup Database:
+   Generate the Prisma client and apply migrations to your database.
 
     ```bash
-    npx prisma migrate dev --name init
+    npx prisma migrate dev
     ```
 
-5.  **Run the development server**:
+5. Run the Application:
+   Start the development server.
 
     ```bash
     npm run dev
-    # or
-    yarn dev
-    # or
-    pnpm dev
-    # or
-    bun dev
     ```
 
-    Open [http://localhost:3000](http://localhost:3000) with your browser to see the result. The page auto-updates as you edit the files.
+    The application will be available at `http://localhost:3700`.
 
+## Contributing
 
-## 🛠 Technologies Used
-
-*   [Next.js](https://nextjs.org/) - React framework for production
-*   [React](https://react.dev/) - Frontend library
-*   [TypeScript](https://www.typescriptlang.org/) - Typed superset of JavaScript
-*   [Prisma](https://www.prisma.io/) - Next-generation ORM
-*   [PostgreSQL](https://www.postgresql.org/) - Relational database
-*   [NextAuth.js](https://next-auth.js.org/) - Authentication for Next.js
-*   [Tailwind CSS](https://tailwindcss.com/) - Utility-first CSS framework
-*   [Shadcn UI](https://ui.shadcn.com/) - Reusable components
-
-## 🤝 Contributing
-
-Contributions are what make the open-source community such an amazing place to learn, inspire, and create. Any contributions you make are **greatly appreciated**.
-
-If you have a suggestion that would make this better, please fork the repo and create a pull request. You can also open an issue with the tag "enhancement".
-Don't forget to give the project a star! Thanks again!
-
-1.  Fork the Project
-2.  Create your Feature Branch (`git checkout -b feature/AmazingFeature`)
-3.  Commit your Changes (`git commit -m 'Add some AmazingFeature'`)
-4.  Push to the Branch (`git push origin feature/AmazingFeature`)
-5.  Open a Pull Request
+Contributions are welcome. Please feel free to fork the repository, make changes, and submit a pull request.
