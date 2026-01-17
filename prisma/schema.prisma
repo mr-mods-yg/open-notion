@@ -80,7 +80,7 @@ model Verification {
 }
 
 model Workspace {
-  id     String @id() @default(uuid())
+  id     String @id() @default(cuid())
   name   String
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -94,7 +94,7 @@ model Workspace {
 }
 
 model Page {
-  id          String    @id() @default(uuid())
+  id          String    @id() @default(cuid())
   name        String
   userId      String
   user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
@@ -117,7 +117,7 @@ enum BlockType {
 }
 
 model Block {
-  id   String    @id() @default(uuid())
+  id   String    @id() @default(cuid())
   type BlockType @default(paragraph)
 
   order Float // ordering key 
