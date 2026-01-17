@@ -1,7 +1,6 @@
 "use client"
 
 import {
-  FileText,
   PlusIcon,
   SquarePen,
 } from "lucide-react"
@@ -27,11 +26,6 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "New Page",
@@ -51,21 +45,6 @@ const data = {
     // },
   ],
   pages: [
-    {
-      name: "Design Engineering",
-      url: "#",
-      icon: FileText,
-    },
-    {
-      name: "Sales & Marketing",
-      url: "#",
-      icon: FileText,
-    },
-    {
-      name: "Travel",
-      url: "#",
-      icon: FileText,
-    },
   ],
 }
 type PageCreateResponse = {
@@ -97,7 +76,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
   const userInfo = {
     name: user.name,
     email: user.email,
-    avatar: user.image ?? "/avatars/shadcn.jpg",
+    avatar: user.image ?? "/avatars.svg",
   }
   if (workspaceQuery.isFetched && !workspace) {
     setWorkspace(workspaceQuery.data?.workspaces[0].id)
@@ -132,7 +111,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {/* <NavMain items={data.navMain} /> */}
-        <NavProjects pages={pagesQuery.data?.pages as { name: string, id: string }[]} />
+        <NavProjects pages={pagesQuery.data?.pages as { name: string, id: string }[]} workspace={workspace}/>
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

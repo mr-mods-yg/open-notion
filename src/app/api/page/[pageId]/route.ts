@@ -61,3 +61,35 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ pa
     })
     return NextResponse.json({ page });
 }
+
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ pageId: string }> }) {
+    const session = await auth.api.getSession({
+        headers: (await headers())
+    });
+    if (!session) {
+        return NextResponse.json({ error: "Unauthenticated" }, {
+            status: 401
+        });
+    }
+    const userId = session?.user.id;
+    const pageId = (await params).pageId;
+    if (!pageId) {
+        return NextResponse.json({ error: "Bad Request" }, {
+            status: 400
+        });
+    }
+    try {
+        await prisma.page.delete({
+            where: {
+                id: pageId,
+                userId: userId
+            }
+        })
+        return NextResponse.json({ success: true, deleted: true });
+    } catch (error) {
+        console.error("Error while deleting a page : " + (error as Error).message);
+        return NextResponse.json({ success: false, deleted: false, message: "Internal Server Error" }, { status: 500 });
+    }
+
+
+}

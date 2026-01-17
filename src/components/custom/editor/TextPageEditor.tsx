@@ -52,6 +52,7 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
         queryFn: () => ky.get("/api/page/" + pageId).json(),
 
     })
+ 
     const blocksQuery = useQuery<{ blocks: Block[] }>({
         queryKey: ['blocks', pageId],
         queryFn: () => ky.get("/api/blocks/" + pageId).json()
@@ -176,12 +177,12 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
         </div>
     }
     React.useEffect(() => {
-        if (pageQuery.data?.page.name) {
+        if (pageQuery.data?.page && pageQuery.data?.page.name) {
             setInputTitle(pageQuery.data.page.name)
         }
-    }, [pageQuery.data?.page.name])
+    }, [pageQuery.data])
 
-    const serverTitle = pageQuery.data?.page.name
+    const serverTitle = pageQuery.data?.page ? pageQuery.data?.page.name : null;
 
     React.useEffect(() => {
         if (!inputTitle) return
@@ -270,7 +271,12 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
                 (a, b) => a.order - b.order
             )
             : [];
-
+    if(pageQuery.data?.page===null){
+        return <div className="flex flex-1 flex-col gap-8 px-4 py-8 md:px-16 md:py-16">
+            <div className='text-lg text-destructive'>Error while fetching the page.</div>
+            <div className='text-lg'>Please check the page url again.</div>
+        </div>
+    }
     return (
         <div className="flex flex-1 flex-col gap-8 px-4 py-8 md:px-16 md:py-16">
             <TextareaAutosize placeholder='Your Title' maxRows={2} className='text-lg sm:text-2xl focus:outline-none focus:ring-0 resize-none' value={inputTitle} onChange={(e) => { setInputTitle(e.target.value) }} />
