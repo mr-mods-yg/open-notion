@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 'use client'
 import { Logo } from '@/components/logo'
 import Link from 'next/link'
@@ -5,12 +6,13 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Menu, X } from 'lucide-react'
 import Image from 'next/image'
+import { ThemeToggle } from './theme-toggle'
 
-const menuItems = [
-    { name: 'Features', href: '#' },
-    { name: 'Solution', href: '#' },
-    { name: 'Pricing', href: '#' },
-    { name: 'About', href: '#' },
+const menuItems : {name: string, href: string}[] = [
+    // { name: 'Features', href: '#' },
+    // { name: 'Solution', href: '#' },
+    // { name: 'Pricing', href: '#' },
+    // { name: 'About', href: '#' },
 ]
 
 export default function HeroSection() {
@@ -59,10 +61,11 @@ export default function HeroSection() {
                                     <Button
                                         asChild
                                         size="sm">
-                                        <Link href="#">
+                                        <Link href="/login">
                                             <span>Login</span>
                                         </Link>
                                     </Button>
+                                    <ThemeToggle/>
                                 </div>
                             </div>
                         </div>

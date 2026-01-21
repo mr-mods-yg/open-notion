@@ -6,8 +6,8 @@ export default function SidebarLayout({
     children: React.ReactNode;
 }>) {
     return (
-            <LayoutWrapper>
-                {children}
-            </LayoutWrapper>
+        <LayoutWrapper>
+            {children}
+        </LayoutWrapper>
     );
 }

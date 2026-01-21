@@ -15,7 +15,8 @@ function ViewOnlyEditor({ shareId }: { shareId: string }) {
     })
     if (sharePageQuery.isLoading) {
         return <div className="min-h-svh flex items-center flex-col gap-8 px-4 py-8 md:px-16 md:py-16">
-            <div className="flex flex-col gap-2 items-center"><LoaderCircle className="animate-spin" size={50} /> Loading Page </div>
+            <div className="flex flex-col gap-2 items-center">
+                <LoaderCircle className="animate-spin" size={50} /> Loading Page </div>
         </div>
     }
     const blocks = sharePageQuery.data?.page.blocks;
