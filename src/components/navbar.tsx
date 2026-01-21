@@ -2,14 +2,12 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { Logo } from './logo'
-import { LogInIcon, LogOutIcon, Menu, X } from 'lucide-react'
+import { LogInIcon, Menu, X } from 'lucide-react'
 import { Button } from './ui/button'
-import { signOut, useSession } from '@/lib/auth-client'
-import { useRouter } from "next/navigation";
+import { useSession } from '@/lib/auth-client'
 import { ThemeToggle } from './theme-toggle'
 
 function Navbar() {
-    const router = useRouter();
     const session = useSession();
     const [menuState, setMenuState] = useState(false)
     return (
@@ -37,17 +35,11 @@ function Navbar() {
 
                     <div className="bg-background in-data-[state=active]:block lg:in-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-4 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
                         <div>
-                            {session.data?.user.id ? <Button variant={"outline"} className='w-full'
-                                onClick={async () => {
-                                    router.push("/dashboard");
-                                }}>
+                            {session.data?.user.id ? <Link href={"/dashboard"}><Button variant={"outline"} className='w-full'>
                                 <span className='flex gap-1 items-center'>Go to Dashboard</span>
-                            </Button> : <Button variant={"outline"}
-                                onClick={async () => {
-                                    router.push("/login");
-                                }}>
-                                <span className='flex gap-1 items-center'><LogInIcon/>Login</span>
-                            </Button>}
+                            </Button></Link> : <Link href={"/login"}><Button variant={"outline"}>
+                                <span className='flex gap-1 items-center'><LogInIcon />Login</span>
+                            </Button></Link>}
                         </div>
                         <div><ThemeToggle /></div>
                     </div>
