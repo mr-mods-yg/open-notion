@@ -36,7 +36,7 @@ export function NavSecondary({
           ))}
           <SidebarMenuItem key="theme-toggle" className="flex justify-center">
             <SidebarMenuButton asChild size="lg">
-              <ThemeToggle/>
+              <ThemeToggle isDashboard={true}/>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
