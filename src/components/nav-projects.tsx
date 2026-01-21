@@ -2,6 +2,7 @@
 
 import {
   FileText,
+  LinkIcon,
   LoaderCircle,
   MoreHorizontal,
   Share,
@@ -35,10 +36,12 @@ import {
 } from "@/components/ui/sidebar"
 import Link from "next/link"
 import { Button } from "./ui/button"
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import ky from "ky"
 import { queryClient } from "@/providers/QueryProvider"
 import { redirect } from "next/navigation"
+import { PageShare } from "@/generated/prisma/client"
+import { toast } from "sonner"
 
 export function NavProjects({
   pages,
@@ -52,7 +55,23 @@ export function NavProjects({
 }) {
   const { isMobile } = useSidebar()
   const [isDeleting, setIsDeleting] = useState(false);
-  const [open, setOpen] = useState<boolean>();
+  const [openShare, setOpenShare] = useState<boolean>();
+  const [openDelete, setOpenDelete] = useState<boolean>();
+  const [isCreatingShare, setIsCreatingShare] = useState(true);
+  const [shareId, setShareId] = useState<string>();
+  const [openedPageId, setOpenedPageId] = useState<string>();
+  useEffect(() => {
+    if (!openedPageId) return;
+
+    const updatePageShare = async (pageId: string) => {
+      setIsCreatingShare(true);
+      const res = await ky.post(`/api/page/share/${pageId}`).json<{ pageShare: PageShare }>();
+      setShareId(res.pageShare.id);
+      setIsCreatingShare(false);
+    }
+
+    updatePageShare(openedPageId);
+  }, [openedPageId]);
   return (
     <SidebarGroup className="group-data-[collapsible=icon]:hidden">
       <SidebarGroupLabel>Pages</SidebarGroupLabel>
@@ -77,14 +96,43 @@ export function NavProjects({
                 side={isMobile ? "bottom" : "right"}
                 align={isMobile ? "end" : "start"}
               >
-                <DropdownMenuItem>
-                  <Share className="text-muted-foreground" />
-                  <span>Share Page</span>
+                <DropdownMenuItem asChild>
+                  <Dialog open={openShare} onOpenChange={(open) => { setOpenShare(open); setOpenedPageId(item.id) }}>
+                    <DialogTrigger className="w-full relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm select-none outline-hidden  hover:bg-zinc-500/10 dark:hover:bg-zinc-100/10 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4">
+                      <Share className="" />
+                      <span>Share Page</span>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle className="flex gap-1 items-center">
+                          {isCreatingShare ? <>Please wait a moment..<LoaderCircle size={16} className="animate-spin" /></> : <>Link Generated</>}
+                        </DialogTitle>
+                        <DialogDescription className="py-4">
+                          This page may include some personal information. <br />
+                          Take a moment to check the content before sharing the link.
+                        </DialogDescription>
+                        <DialogFooter className="sm:justify-center">
+                          <DialogClose asChild>
+                            <Button type="button" variant="secondary">
+                              Go Back
+                            </Button>
+                          </DialogClose>
+                          <Button type="button" disabled={isCreatingShare} className="flex gap-1 items-center" onClick={() => {
+                            navigator.clipboard.writeText(`${window.location.protocol}//${window.location.host}/share/${shareId}`)
+                            setOpenShare(false);
+                            toast.success("Link Copied!");
+                          }}>
+                            <LinkIcon size={16} /> Copy Link
+                          </Button>
+                        </DialogFooter>
+                      </DialogHeader>
+                    </DialogContent>
+                  </Dialog>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
                 <DropdownMenuItem asChild>
-                  <Dialog open={open} onOpenChange={(open)=>setOpen(open)}>
-                    <DialogTrigger className="w-full relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm select-none outline-hidden text-destructive hover:bg-destructive/10 hover:text-destructive focus:bg-destructive/15 focus:text-destructive dark:hover:bg-destructive/20 dark:focus:bg-destructive/25 data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 [&_svg]:text-destructive!">
+                  <Dialog open={openDelete} onOpenChange={(open) => setOpenDelete(open)}>
+                    <DialogTrigger className="w-full relative flex cursor-pointer items-center gap-2 rounded-sm px-2 py-1.5 text-sm select-none outline-hidden text-destructive hover:bg-destructive/10 hover:text-destructive dark:hover:bg-destructive/20 data-disabled:pointer-events-none data-disabled:opacity-50 data-inset:pl-8 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg]:size-4 [&_svg]:text-destructive!">
                       <Trash2 className="text-muted-foreground" />
                       <span>Delete Page</span>
                     </DialogTrigger>
@@ -101,16 +149,16 @@ export function NavProjects({
                               No, dont
                             </Button>
                           </DialogClose>
-                          <Button type="button" variant="destructive" disabled={isDeleting} onClick={async ()=>{
+                          <Button type="button" variant="destructive" disabled={isDeleting} onClick={async () => {
                             setIsDeleting(true);
                             await ky.delete(`/api/page/${item.id}`);
-                            if(workspace) {
-                                await queryClient.refetchQueries({
-                                  queryKey: ['pages', workspace]
-                                })
+                            if (workspace) {
+                              await queryClient.refetchQueries({
+                                queryKey: ['pages', workspace]
+                              })
                             }
                             setIsDeleting(false);
-                            setOpen(false);
+                            setOpenDelete(false);
                             redirect("/dashboard");
                           }}>
                             {isDeleting ? <span className="flex gap-1 items-center">

@@ -1,5 +1,4 @@
 import QueryProvider from "@/providers/QueryProvider";
-import { LayoutWrapper } from "@/components/layout-wrapper";
 
 export default function MainLayout({
     children,
@@ -8,9 +7,7 @@ export default function MainLayout({
 }>) {
     return (
         <QueryProvider>
-            <LayoutWrapper>
-                {children}
-            </LayoutWrapper>
+            {children}
         </QueryProvider>
     );
 }

@@ -8,6 +8,7 @@ import React, { useRef, useState } from 'react'
 import TextareaAutosize from 'react-textarea-autosize';
 import BlockEditor from './BlockEditor';
 import { BlockContent } from '@/types/block';
+import { LoaderCircle } from 'lucide-react';
 
 function computeOrder(prev?: number, next?: number) {
     if (prev == null && next == null) return 1
@@ -50,9 +51,8 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
     const pageQuery = useQuery<{ page: Page }>({
         queryKey: ['page', pageId],
         queryFn: () => ky.get("/api/page/" + pageId).json(),
-
     })
- 
+
     const blocksQuery = useQuery<{ blocks: Block[] }>({
         queryKey: ['blocks', pageId],
         queryFn: () => ky.get("/api/blocks/" + pageId).json()
@@ -171,11 +171,7 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
             }
         }
     })
-    if (pageQuery.isLoading) {
-        <div className="flex flex-1 flex-col gap-8 px-4 py-8 md:px-16 md:py-16">
-            Loading..
-        </div>
-    }
+
     React.useEffect(() => {
         if (pageQuery.data?.page && pageQuery.data?.page.name) {
             setInputTitle(pageQuery.data.page.name)
@@ -271,7 +267,12 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
                 (a, b) => a.order - b.order
             )
             : [];
-    if(pageQuery.data?.page===null){
+    if (pageQuery.isLoading || blocksQuery.isLoading) {
+        return <div className="flex flex-1 items-center flex-col gap-8 px-4 py-8 md:px-16 md:py-16">
+            <div className="flex flex-col gap-2 items-center"><LoaderCircle className="animate-spin" size={50} /> Loading Page </div>
+        </div>
+    }
+    if (pageQuery.data?.page === null) {
         return <div className="flex flex-1 flex-col gap-8 px-4 py-8 md:px-16 md:py-16">
             <div className='text-lg text-destructive'>Error while fetching the page.</div>
             <div className='text-lg'>Please check the page url again.</div>

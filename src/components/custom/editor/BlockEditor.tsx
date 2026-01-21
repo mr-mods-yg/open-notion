@@ -4,11 +4,12 @@ import { queryClient } from "@/providers/QueryProvider"
 import { BlockContent } from "@/types/block";
 import { useMutation } from "@tanstack/react-query"
 import ky from "ky"
-import { ExternalLink } from "lucide-react";
+
 import React, { useEffect, useState } from "react"
 import SlashMenu from "../SlashMenu";
 import { filterCommands } from "@/commands/SlashCommands";
 import { Checkbox } from "@/components/ui/checkbox";
+import HighlightedText from "./HighlightedText";
 
 type UpdateBlockMutation = {
     type: BlockType
@@ -19,8 +20,6 @@ type UpdateBlockMutation = {
 type BlockEditorProps = {
     block: Block;
 } & React.HTMLAttributes<HTMLDivElement>;
-
-const URL_REGEX = /(https?:\/\/[^\s]+|www\.[^\s]+)/g;
 
 function useForwardedRef<T>(ref: React.ForwardedRef<T>) {
     const innerRef = React.useRef<T>(null);
@@ -271,77 +270,7 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
 
 BlockEditor.displayName = 'BlockEditor';
 
-function HighlightedText({ text, lineThrough }: { text: string, lineThrough?: boolean }) {
-    const parts: { text: string; isUrl: boolean }[] = [];
-    const [hoverLink, setHoverLink] = useState<string | null>(null);
-    let lastIndex = 0;
 
-    text.replace(URL_REGEX, (match, _, offset) => {
-        if (offset > lastIndex) {
-            parts.push({ text: text.slice(lastIndex, offset), isUrl: false });
-        }
-        parts.push({ text: match, isUrl: true });
-        lastIndex = offset + match.length;
-        return match;
-    });
-
-    if (lastIndex < text.length) {
-        parts.push({ text: text.slice(lastIndex), isUrl: false });
-    }
-
-    return (
-        <span className={`${lineThrough ? "opacity-80" : ""}`}>
-            {parts.map((p, i) =>
-                p.isUrl ? (
-                    <span
-                        key={i}
-                        className="relative inline-block"
-                        onMouseEnter={() => setHoverLink(p.text)}
-                        onMouseLeave={() => setHoverLink(null)}
-                    >
-                        {/* link */}
-                        <span
-                            className="
-                                text-blue-700 dark:text-blue-400
-                                underline
-                                pointer-events-auto
-                                cursor-pointer
-                            "
-                            onClick={(e) => {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                const url = p.text.startsWith("http") ? p.text : `https://${p.text}`;
-                                window.open(url, "_blank");
-                            }}
-                        >
-                            {p.text}
-                        </span>
-
-                        {/* tooltip */}
-                        {hoverLink === p.text && (
-                            <span
-                                className="
-                                    absolute left-0 top-full mt-1
-                                    z-50
-                                    bg-foreground text-background
-                                    text-xs
-                                    px-2 py-1
-                                    rounded
-                                    whitespace-nowrap
-                                    shadow flex gap-1
-                                    "
-                            >
-                                Open link <ExternalLink size={15} />
-                            </span>
-                        )}
-                    </span>
-                ) : (
-                    <span key={i} className={`${lineThrough ? "line-through" : ""}`}>{p.text}</span>
-                )
-            )}
-        </span>
-    );
-}
 
 
 export default BlockEditor

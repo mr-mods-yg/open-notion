@@ -111,7 +111,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
       </SidebarHeader>
       <SidebarContent>
         {/* <NavMain items={data.navMain} /> */}
-        <NavProjects pages={pagesQuery.data?.pages as { name: string, id: string }[]} workspace={workspace}/>
+        <NavProjects pages={pagesQuery.data?.pages as { name: string, id: string }[]} workspace={workspace} />
         <NavSecondary items={data.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

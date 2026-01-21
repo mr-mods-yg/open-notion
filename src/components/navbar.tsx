@@ -2,20 +2,21 @@
 import Link from 'next/link'
 import { useState } from 'react'
 import { Logo } from './logo'
-import { Menu, X } from 'lucide-react'
+import { LogInIcon, LogOutIcon, Menu, X } from 'lucide-react'
 import { Button } from './ui/button'
-import { signOut } from '@/lib/auth-client'
+import { signOut, useSession } from '@/lib/auth-client'
 import { useRouter } from "next/navigation";
-
+import { ThemeToggle } from './theme-toggle'
 
 function Navbar() {
     const router = useRouter();
+    const session = useSession();
     const [menuState, setMenuState] = useState(false)
     return (
         <nav
             data-state={menuState && 'active'}
             className="fixed z-20 w-full border-b border-dashed bg-white backdrop-blur md:relative dark:bg-zinc-950/50 lg:dark:bg-transparent">
-            <div className="m-auto max-w-5xl px-6">
+            <div className="m-auto max-w-350 px-6">
                 <div className="flex flex-wrap items-center justify-between gap-6 py-3 lg:gap-0 lg:py-4">
                     <div className="flex w-full justify-between lg:w-auto">
                         <Link
@@ -34,31 +35,21 @@ function Navbar() {
                         </button>
                     </div>
 
-                    <div className="bg-background in-data-[state=active]:block lg:in-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-8 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
-                        <div className="lg:pr-4">
-                            <ul className="space-y-6 text-base lg:flex lg:gap-8 lg:space-y-0 lg:text-sm">
-                                <li>
-                                    <button
-                                        // onClick={() => { if (item.to && item.to != "#") scrollToSection(item.to) }}
-                                        className="text-muted-foreground hover:text-accent-foreground block duration-150">
-                                        <span>{"Account"}</span>
-                                    </button>
-                                </li>
-                            </ul>
-                        </div>
-
-                        <div className="flex w-full flex-col space-y-3 sm:flex-row sm:gap-3 sm:space-y-0 md:w-fit lg:border-l lg:pl-6">
-                            <Button
-                                asChild
-                                size="sm">
-                                <Button onClick={async () => {
-                                    await signOut();
+                    <div className="bg-background in-data-[state=active]:block lg:in-data-[state=active]:flex mb-6 hidden w-full flex-wrap items-center justify-end space-y-4 rounded-3xl border p-6 shadow-2xl shadow-zinc-300/20 md:flex-nowrap lg:m-0 lg:flex lg:w-fit lg:gap-6 lg:space-y-0 lg:border-transparent lg:bg-transparent lg:p-0 lg:shadow-none dark:shadow-none dark:lg:bg-transparent">
+                        <div>
+                            {session.data?.user.id ? <Button variant={"outline"} className='w-full'
+                                onClick={async () => {
+                                    router.push("/dashboard");
+                                }}>
+                                <span className='flex gap-1 items-center'>Go to Dashboard</span>
+                            </Button> : <Button variant={"outline"}
+                                onClick={async () => {
                                     router.push("/login");
                                 }}>
-                                    <span>Logout</span>
-                                </Button>
-                            </Button>
+                                <span className='flex gap-1 items-center'><LogInIcon/>Login</span>
+                            </Button>}
                         </div>
+                        <div><ThemeToggle /></div>
                     </div>
                 </div>
             </div>
