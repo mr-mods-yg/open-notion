@@ -20,7 +20,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pag
         });
     }
     const body = await req.json();
-    if (body.text==null) {
+    if (body.text == null) {
         return NextResponse.json({ error: "Bad Request" }, {
             status: 400
         });
@@ -33,10 +33,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pag
     })
     const block = await prisma.block.create({
         data: {
+            id: body.id,
             type: body.type || "paragraph",
             userId,
             pageId,
-            order: body.order || blocksLength+1,
+            order: body.order || blocksLength + 1,
             content: { text: body.text }
         }
     })

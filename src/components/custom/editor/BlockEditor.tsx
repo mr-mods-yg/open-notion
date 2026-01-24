@@ -44,6 +44,7 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
 
 
     const updateBlockMutation = useMutation({
+        retry: 3,
         mutationFn: async ({ text, checked, type }: UpdateBlockMutation) => {
             return ky.patch("/api/block/" + block.id, {
                 json: {

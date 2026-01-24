@@ -91,9 +91,9 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
     })
 
     const createBlockMutation = useMutation({
-        mutationFn: async ({ text, order }: CreateBlockMutation) => {
+        mutationFn: async ({ tempId, text, order }: CreateBlockMutation) => {
             return (await ky.post("/api/block/create/" + pageId, {
-                json: { text, order }
+                json: { id: tempId, text, order }
             })).json<{ block: Block }>()
         },
         onMutate: async ({ tempId, text, order }: CreateBlockMutation) => {
