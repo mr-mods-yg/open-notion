@@ -15,7 +15,6 @@ import {
     CheckSquare, 
     Heading, 
     Code, 
-    Command,
     CornerDownLeft,
     Loader2
 } from "lucide-react";
@@ -191,10 +190,6 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                         className="flex-1 bg-transparent text-sm outline-none text-neutral-800 dark:text-neutral-100 placeholder-neutral-400"
                         autoFocus
                     />
-                    <div className="flex items-center gap-1.5 shrink-0 bg-neutral-200/50 dark:bg-neutral-800/50 px-1.5 py-0.5 rounded text-[10px] text-neutral-400 font-mono">
-                        <Command className="size-2.5" />
-                        <span>K</span>
-                    </div>
                 </div>
 
                 {/* Results List */}
@@ -276,20 +271,7 @@ export function SearchDialog({ open, onOpenChange }: SearchDialogProps) {
                     )}
                 </div>
 
-                {/* Footer Guide */}
-                <div className="border-t border-neutral-200 dark:border-neutral-800 px-4 py-2 flex items-center justify-between text-[11px] text-neutral-400 dark:text-neutral-500 bg-neutral-100/50 dark:bg-neutral-900/50 font-medium">
-                    <div className="flex items-center gap-3">
-                        <span className="flex items-center gap-1">
-                            <kbd className="px-1 bg-neutral-200 dark:bg-neutral-800 rounded font-mono border border-neutral-300/50 dark:border-neutral-700/50 text-[9px] shadow-sm">↑↓</kbd> Navigate
-                        </span>
-                        <span className="flex items-center gap-1">
-                            <kbd className="px-1 bg-neutral-200 dark:bg-neutral-800 rounded font-mono border border-neutral-300/50 dark:border-neutral-700/50 text-[9px] shadow-sm">Enter</kbd> Open
-                        </span>
-                    </div>
-                    <span className="flex items-center gap-1">
-                        <kbd className="px-1 bg-neutral-200 dark:bg-neutral-800 rounded font-mono border border-neutral-300/50 dark:border-neutral-700/50 text-[9px] shadow-sm">Esc</kbd> Close
-                    </span>
-                </div>
+
             </DialogContent>
         </Dialog>
     );

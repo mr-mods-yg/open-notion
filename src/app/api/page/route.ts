@@ -36,6 +36,15 @@ export async function POST(req: NextRequest) {
                 userId: userId
             }
         })
+        await tx.block.create({
+            data: {
+                type: "paragraph",
+                userId: userId,
+                pageId: page.id,
+                order: 1.0,
+                content: { text: "" }
+            }
+        })
         return { workspaceFound: true, page }
     })
     if (!workspaceFound) {

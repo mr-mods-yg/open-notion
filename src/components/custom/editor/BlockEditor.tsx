@@ -114,6 +114,7 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
         }
 
     }, [block.content, block.id, block.type, blockText, blockType, checked, updateBlockMutation])
+
     useEffect(() => {
         if (blockText == null) return;
         if (blockText === (block.content as BlockContent).text && (block.type === blockType)) return;
@@ -212,14 +213,31 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
     const filtered = menu
         ? filterCommands(menu.query)
         : [];
+
+    const isEmpty = (!blockText || blockText.replace(/[\n\r]/g, "") === "") && !checked;
     return <div className="relative w-full">
         {/* Highlight layer */}
         <div
             className="pointer-events-none absolute inset-0 whitespace-pre-wrap wrap-break-word flex gap-1 items-center text-base sm:text-lg border-l-2 pl-2"
             aria-hidden
         >
-            {blockType === "paragraph" && <HighlightedText text={blockText} />}
-            {blockType === "todo" && <><span className="size-4" /><HighlightedText text={blockText} lineThrough={checked} /></>}
+            {blockType === "paragraph" && (
+                isEmpty ? (
+                    <p className="text-gray-500 dark:text-gray-400">Write something or press "/" for commands</p>
+                ) : (
+                    <HighlightedText text={blockText} />
+                )
+            )}
+            {blockType === "todo" && (
+                <>
+                    <span className="size-4" />
+                    {isEmpty ? (
+                        <p className="text-gray-500 dark:text-gray-400">Write something or press "/" for commands</p>
+                    ) : (
+                        <HighlightedText text={blockText} lineThrough={checked} />
+                    )}
+                </>
+            )}
         </div>
 
         {/* New Editing Layer - Editable Div */}
