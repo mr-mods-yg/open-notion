@@ -77,7 +77,7 @@ export function NavProjects({
       <SidebarGroupLabel>Pages</SidebarGroupLabel>
       <SidebarMenu>
         {pages?.map((item) => (
-          <SidebarMenuItem key={item.name}>
+          <SidebarMenuItem key={item.id}>
             <SidebarMenuButton asChild>
               <Link href={"/page/" + item.id}>
                 <FileText />
