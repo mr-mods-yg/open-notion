@@ -47,7 +47,7 @@ Ensure you have the following installed:
 2. Install dependencies:
 
     ```bash
-    npm install
+    npm install --legacy-peer-deps
     ```
 
 3. Configure Environment Variables:
