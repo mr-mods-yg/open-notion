@@ -223,7 +223,7 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
         >
             {blockType === "paragraph" && (
                 isEmpty ? (
-                    <p className="text-gray-500 dark:text-gray-400">Write something or press "/" for commands</p>
+                    <p className="text-gray-500 dark:text-gray-400">Write something or press &quot;/&quot; for commands</p>
                 ) : (
                     <HighlightedText text={blockText} />
                 )
@@ -232,7 +232,7 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
                 <>
                     <span className="size-4" />
                     {isEmpty ? (
-                        <p className="text-gray-500 dark:text-gray-400">Write something or press "/" for commands</p>
+                        <p className="text-gray-500 dark:text-gray-400">Write something or press &quot;/&quot; for commands</p>
                     ) : (
                         <HighlightedText text={blockText} lineThrough={checked} />
                     )}

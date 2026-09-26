@@ -1,7 +1,16 @@
 import { auth } from "@/lib/auth";
 import prisma from "@/lib/db";
+import { BlockType } from "@/generated/prisma/client";
 import { headers } from "next/headers";
 import { NextRequest, NextResponse } from "next/server";
+
+type SearchResultRow = {
+    id: string;
+    type: BlockType;
+    content: { text?: string; task?: boolean };
+    pageId: string;
+    pageName: string;
+};
 
 export async function GET(req: NextRequest) {
     const session = await auth.api.getSession({
@@ -24,7 +33,7 @@ export async function GET(req: NextRequest) {
         const queryStr = `%${query}%`;
         
         // Search in the content JSON field (where content->>'text' matches the query)
-        const results = await prisma.$queryRaw<any[]>`
+        const results = await prisma.$queryRaw<SearchResultRow[]>`
             SELECT 
                 b.id,
                 b.type,

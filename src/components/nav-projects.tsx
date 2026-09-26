@@ -119,7 +119,6 @@ export function NavProjects({
                           </DialogClose>
                           <Button type="button" disabled={isCreatingShare} className="flex gap-1 items-center" onClick={() => {
                             navigator.clipboard.writeText(`${window.location.protocol}//${window.location.host}/share/${shareId}`)
-                            setOpenShare(false);
                             toast.success("Link Copied!");
                           }}>
                             <LinkIcon size={16} /> Copy Link

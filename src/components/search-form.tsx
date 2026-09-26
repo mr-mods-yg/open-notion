@@ -22,17 +22,15 @@ export function SearchForm({ className, ...props }: React.ComponentProps<"div">)
   }, []);
 
   return (
-    <div className={cn("w-full sm:w-[240px]", className)} {...props}>
+    <div className={cn("w-full sm:w-[320px]", className)} {...props}>
       <button
         type="button"
         onClick={() => setIsOpen(true)}
-        className="relative w-full h-8 flex items-center justify-between pl-8 pr-2 rounded-md border border-neutral-200 dark:border-neutral-800 bg-neutral-100/50 dark:bg-neutral-900/50 hover:bg-neutral-200/40 dark:hover:bg-neutral-800/40 text-xs text-neutral-500 dark:text-neutral-400 transition-colors cursor-pointer text-left select-none outline-none focus-visible:ring-1 focus-visible:ring-ring"
+        className="relative w-full h-9 flex items-center justify-between pl-9 pr-2.5 rounded-md border border-neutral-200 dark:border-neutral-800 bg-neutral-100/50 dark:bg-neutral-900/50 hover:bg-neutral-200/40 dark:hover:bg-neutral-800/40 text-sm text-neutral-500 dark:text-neutral-400 transition-colors cursor-pointer text-left select-none outline-none focus-visible:ring-1 focus-visible:ring-ring"
       >
-        <span className="flex items-center gap-2 w-20">
-          <span>Search...</span>
-        </span>
+        <span>Search...</span>
 
-        <Search className="pointer-events-none absolute top-1/2 left-2.5 size-3.5 -translate-y-1/2 opacity-50 select-none" />
+        <Search className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 opacity-50 select-none" />
       </button>
 
       <SearchDialog open={isOpen} onOpenChange={setIsOpen} />
