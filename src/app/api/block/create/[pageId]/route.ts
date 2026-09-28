@@ -41,5 +41,14 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ pag
             content: { text: body.text }
         }
     })
+    await prisma.page.update({
+        where: {
+            id: pageId,
+            userId
+        },
+        data: {
+            updatedAt: new Date()
+        }
+    })
     return NextResponse.json({ block });
 }

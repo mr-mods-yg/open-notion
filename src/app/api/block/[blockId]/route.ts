@@ -65,6 +65,17 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ bl
             }
         })
     }
+    if (block) {
+        await prisma.page.update({
+            where: {
+                id: block.pageId,
+                userId
+            },
+            data: {
+                updatedAt: new Date()
+            }
+        })
+    }
     return NextResponse.json({ success: true, block });
 }
 

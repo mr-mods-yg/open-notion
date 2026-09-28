@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { useQuery } from "@tanstack/react-query";
 import ky from "ky";
 
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import { useSession } from "@/lib/auth-client";
 import type { Page, Workspace } from "@/generated/prisma/client";
 
@@ -37,13 +39,21 @@ function bucketFor(date: Date) {
   return "Older";
 }
 
-function timeFor(date: Date) {
-  const days = daysAgo(date);
-  if (days <= 0) {
-    return date.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
-  }
-  if (days < 7) return date.toLocaleDateString(undefined, { weekday: "short" });
-  return date.toLocaleDateString(undefined, { day: "numeric", month: "short" });
+const rtf = new Intl.RelativeTimeFormat(undefined, { numeric: "always" });
+
+function relativeTime(date: Date) {
+  const seconds = Math.round((date.getTime() - Date.now()) / 1000);
+  const minutes = Math.round(seconds / 60);
+  const hours = Math.round(minutes / 60);
+  const days = Math.round(hours / 24);
+
+  if (Math.abs(seconds) < 60) return "Just now";
+  if (Math.abs(minutes) < 60) return rtf.format(minutes, "minute");
+  if (Math.abs(hours) < 24) return rtf.format(hours, "hour");
+  if (Math.abs(days) < 7) return rtf.format(days, "day");
+  if (Math.abs(days) < 31) return rtf.format(Math.round(days / 7), "week");
+  if (Math.abs(days) < 365) return rtf.format(Math.round(days / 30), "month");
+  return rtf.format(Math.round(days / 365), "year");
 }
 
 function greeting() {
@@ -131,7 +141,10 @@ export default function Page() {
   }
 
   const firstName = session.data?.user.name?.split(" ")[0];
-  const isLoading = workspaceQuery.isPending || pagesQuery.isPending;
+  const hasWorkspace = !!workspaceId;
+  const isLoading =
+    workspaceQuery.isPending ||
+    (hasWorkspace && pagesQuery.isPending && !pagesQuery.data);
   const hasFailed = pagesQuery.isError || workspaceQuery.isError;
   const total = pagesQuery.data?.pages.length ?? 0;
   const shown = groups.reduce((count, group) => count + group.pages.length, 0);
@@ -154,37 +167,30 @@ export default function Page() {
                 : `${total} ${total === 1 ? "page" : "pages"}`}
         </p>
 
-        <div className="mt-8 flex items-center gap-4 text-sm">
-          <button
-            type="button"
+        <div className="mt-8 flex items-center gap-2">
+          <label htmlFor="page-filter" className="sr-only">
+            Filter pages by name
+          </label>
+          <Input
+            id="page-filter"
+            ref={filterRef}
+            value={filter}
+            onChange={(event) => setFilter(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Escape") setFilter("");
+            }}
+            placeholder={total > 0 ? "Filter pages" : "No pages to filter yet"}
+            disabled={total === 0}
+            className="h-9 flex-1"
+          />
+
+          <Button
             onClick={() => void createPage()}
             disabled={!workspaceId || creating}
-            className="underline underline-offset-4 hover:no-underline disabled:pointer-events-none disabled:opacity-40"
+            className="h-9 shrink-0"
           >
             {creating ? "Creating" : "New page"}
-          </button>
-
-          {total > 0 && (
-            <>
-              <span aria-hidden className="text-muted-foreground">
-                /
-              </span>
-              <label htmlFor="page-filter" className="sr-only">
-                Filter pages by name
-              </label>
-              <input
-                id="page-filter"
-                ref={filterRef}
-                value={filter}
-                onChange={(event) => setFilter(event.target.value)}
-                onKeyDown={(event) => {
-                  if (event.key === "Escape") setFilter("");
-                }}
-                placeholder="Filter"
-                className="min-w-0 flex-1 bg-transparent text-sm outline-none placeholder:text-muted-foreground focus-visible:underline focus-visible:underline-offset-4"
-              />
-            </>
-          )}
+          </Button>
         </div>
 
         {isLoading ? (
@@ -217,19 +223,30 @@ export default function Page() {
           </div>
         ) : total === 0 ? (
           <div className="flex flex-col gap-2 pt-10 text-sm">
-            <p className="font-medium">This workspace has no pages yet</p>
-            <p className="text-muted-foreground">
-              A page holds blocks of text, to-dos, headings and code. Start one here, then use the
-              sidebar to move between them.
-            </p>
-            <button
-              type="button"
-              onClick={() => void createPage()}
-              disabled={creating}
-              className="w-fit underline underline-offset-4 hover:no-underline disabled:pointer-events-none disabled:opacity-40"
-            >
-              {creating ? "Creating" : "Create the first page"}
-            </button>
+            {hasWorkspace ? (
+              <>
+                <p className="font-medium">This workspace has no pages yet</p>
+                <p className="text-muted-foreground">
+                  A page holds blocks of text, to-dos, headings and code. Start one here, then use
+                  the sidebar to move between them.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => void createPage()}
+                  disabled={creating}
+                  className="w-fit underline underline-offset-4 hover:no-underline disabled:pointer-events-none disabled:opacity-40"
+                >
+                  {creating ? "Creating" : "Create the first page"}
+                </button>
+              </>
+            ) : (
+              <>
+                <p className="font-medium">You have no workspace yet</p>
+                <p className="text-muted-foreground">
+                  Pages live inside a workspace, so one has to exist before a page can be created.
+                </p>
+              </>
+            )}
           </div>
         ) : shown === 0 ? (
           <div className="flex flex-col gap-2 pt-10 text-sm">
@@ -255,11 +272,11 @@ export default function Page() {
                   <li key={page.id}>
                     <a
                       href={`/page/${page.id}`}
-                      className="flex items-baseline gap-4 rounded-sm py-1.5 outline-none focus-visible:underline focus-visible:underline-offset-4"
+                      className="flex items-baseline gap-4 rounded-md px-2 py-2.5 -mx-2 transition-colors hover:bg-accent focus-visible:bg-accent focus-visible:ring-ring/50 focus-visible:ring-[3px] focus-visible:outline-none"
                     >
                       <span className="min-w-0 flex-1 truncate text-sm">{page.name}</span>
                       <span className="shrink-0 text-sm text-muted-foreground tabular-nums">
-                        {timeFor(new Date(page.updatedAt))}
+                        {relativeTime(new Date(page.updatedAt))}
                       </span>
                     </a>
                   </li>
