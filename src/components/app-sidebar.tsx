@@ -1,9 +1,11 @@
 "use client"
 
 import {
+  HomeIcon,
   PlusIcon,
   SquarePen,
 } from "lucide-react"
+import Link from "next/link"
 import ky from "ky";
 // import { NavMain } from "@/components/nav-main"
 import { NavProjects } from "@/components/nav-projects"
@@ -90,7 +92,15 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         {workspaceQuery.isFetched && <TeamSwitcher teams={workspaceQuery.data?.workspaces as { name: string }[]} />}
         <SidebarMenu>
           <SidebarMenuItem>
-            <SidebarMenuButton size="lg" asChild onClick={async () => {
+            <SidebarMenuButton size="lg" onClick={() => router.push("/dashboard")}>
+              <div className="flex gap-2 items-center px-1">
+                <HomeIcon className="size-5" />
+                Home
+              </div>
+            </SidebarMenuButton>
+          </SidebarMenuItem>
+          <SidebarMenuItem>
+            <SidebarMenuButton size="lg" onClick={async () => {
               if (workspace) {
                 const res: PageCreateResponse = await ky.post("/api/page", {
                   json: {

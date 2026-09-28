@@ -80,8 +80,10 @@ export function NavProjects({
           <SidebarMenuItem key={item.id}>
             <SidebarMenuButton asChild>
               <Link href={"/page/" + item.id}>
-                <FileText />
-                <span>{item.name}</span>
+                <div className="flex gap-2 items-center px-1">
+                  <FileText className="size-5" />
+                  <span className="truncate">{item.name}</span>
+                </div>
               </Link>
             </SidebarMenuButton>
             <DropdownMenu>
