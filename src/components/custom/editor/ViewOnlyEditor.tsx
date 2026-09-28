@@ -4,7 +4,7 @@ import ky from "ky"
 import { LoaderCircle } from "lucide-react";
 import TextareaAutosize from 'react-textarea-autosize';
 import HighlightedText from "./HighlightedText";
-import { BlockContent } from "@/types/block";
+import { BlockContent, HEADING_CLASSES, getHeadingLevel } from "@/types/block";
 import { Checkbox } from "@/components/ui/checkbox";
 
 function ViewOnlyEditor({ shareId }: { shareId: string }) {
@@ -22,7 +22,7 @@ function ViewOnlyEditor({ shareId }: { shareId: string }) {
     const blocks = sharePageQuery.data?.page.blocks;
     return (
         <div className="flex flex-1 flex-col gap-8 px-6 py-8 sm:px-16 md:px-32 lg:px-64 md:py-16">
-            <TextareaAutosize disabled placeholder='Your Title' maxRows={2} className='text-lg sm:text-2xl focus:outline-none focus:ring-0 resize-none' value={sharePageQuery.data?.page.name} />
+            <TextareaAutosize disabled placeholder='Your Title' maxRows={2} className='text-3xl sm:text-4xl font-semibold focus:outline-none focus:ring-0 resize-none' value={sharePageQuery.data?.page.name} />
             <div className='flex flex-col gap-2'>
                 {blocks?.map((block) =>
                     <div key={block.id} className="relative h-auto">
@@ -31,6 +31,9 @@ function ViewOnlyEditor({ shareId }: { shareId: string }) {
                             aria-hidden
                         >
                             {block.type === "paragraph" && <HighlightedText text={(block.content as BlockContent).text} />}
+                            {block.type === "heading" && <div className={HEADING_CLASSES[getHeadingLevel(block.content)]}>
+                                <HighlightedText text={(block.content as BlockContent).text} />
+                            </div>}
                             {block.type === "todo" && <>
                                 <Checkbox
                                     checked={(block.content as { task: boolean }).task || false}

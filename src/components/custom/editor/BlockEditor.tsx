@@ -1,7 +1,7 @@
 "use client";
 import { Block, BlockType } from "@/generated/prisma/client"
 import { queryClient } from "@/providers/QueryProvider"
-import { BlockContent } from "@/types/block";
+import { BlockContent, HeadingLevel, HEADING_CLASSES, getHeadingLevel } from "@/types/block";
 import { useMutation } from "@tanstack/react-query"
 import ky from "ky"
 
@@ -16,6 +16,7 @@ type UpdateBlockMutation = {
     text: string;
     blockId: string
     checked?: boolean
+    level?: HeadingLevel
 }
 type BlockEditorProps = {
     block: Block;
@@ -28,9 +29,10 @@ function useForwardedRef<T>(ref: React.ForwardedRef<T>) {
 
     return innerRef;
 }
-const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block, ...props }, ref) => {
+const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block, onFocus, onBlur, ...props }, ref) => {
     const [blockText, setBlockText] = useState<string>((block.content as BlockContent).text);
     const [blockType, setBlockType] = useState<BlockType>(block.type);
+    const [headingLevel, setHeadingLevel] = useState<HeadingLevel>(() => getHeadingLevel(block.content));
     const [menu, setMenu] = useState<{
         open: boolean;
         query: string;
@@ -39,22 +41,24 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
         (block.content as BlockContent & { task?: boolean }).task ?? undefined
     );
     const [menuPos, setMenuPos] = useState({ left: 0 });
+    const [isFocused, setIsFocused] = useState(false);
 
     const contentRef = useForwardedRef(ref);
 
 
     const updateBlockMutation = useMutation({
         retry: 3,
-        mutationFn: async ({ text, checked, type }: UpdateBlockMutation) => {
+        mutationFn: async ({ text, checked, type, level }: UpdateBlockMutation) => {
             return ky.patch("/api/block/" + block.id, {
                 json: {
                     type,
                     text,
-                    task: checked
+                    task: checked,
+                    level
                 }
             })
         },
-        onMutate: async ({ text, type, checked, blockId }: UpdateBlockMutation) => {
+        onMutate: async ({ text, type, checked, blockId, level }: UpdateBlockMutation) => {
             await queryClient.cancelQueries({ queryKey: ['blocks', block.pageId] });
             const previousBlocksData = queryClient.getQueryData<{ blocks: Block[] }>(['blocks', block.pageId]);
 
@@ -70,6 +74,21 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
                                 content: {
                                     text: text,
                                     task: checked ? checked : false,
+                                }
+                            } : block
+                        ))
+                    }
+                }
+                if (type == "heading") {
+                    return {
+                        ...old,
+                        blocks: old.blocks.map((block) => (
+                            block.id === blockId ? {
+                                ...block,
+                                type: "heading",
+                                content: {
+                                    text: text,
+                                    level: level ? level : 2,
                                 }
                             } : block
                         ))
@@ -115,26 +134,35 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
 
     }, [block.content, block.id, block.type, blockText, blockType, checked, updateBlockMutation])
 
+    const serverLevel = getHeadingLevel(block.content);
+
     useEffect(() => {
         if (blockText == null) return;
-        if (blockText === (block.content as BlockContent).text && (block.type === blockType)) return;
+        const typeChanged = block.type !== blockType;
+        const levelChanged = blockType === "heading" && serverLevel !== headingLevel;
+        if (blockText === (block.content as BlockContent).text && !typeChanged && !levelChanged) return;
 
         console.log("mutating block - text or type changed");
         console.log("blockText:", blockText);
         console.log("block.content.text:", (block.content as BlockContent).text);
         console.log("block.type:", block.type);
         console.log("blockType:", blockType);
-        const timeoutDuration = (block.type != blockType) ? 100 : 300;
+        const timeoutDuration = (typeChanged || levelChanged) ? 100 : 300;
         // faster timeout for type : 100ms, slower timeout for content : 300ms
         const timeout = setTimeout(() => {
-            updateBlockMutation.mutate({ blockId: block.id, type: blockType, text: blockText })
+            updateBlockMutation.mutate({
+                blockId: block.id,
+                type: blockType,
+                text: blockText,
+                level: blockType === "heading" ? headingLevel : undefined
+            })
         }, timeoutDuration);
 
         return () => {
             clearTimeout(timeout);
         }
 
-    }, [blockText, blockType, block.type, checked, block.content, block.id, updateBlockMutation])
+    }, [blockText, blockType, block.type, checked, block.content, block.id, headingLevel, serverLevel, updateBlockMutation])
 
     const handleBlockChange = (e: React.FormEvent<HTMLDivElement>) => {
         const event = e as unknown as React.KeyboardEvent<HTMLDivElement>;
@@ -215,6 +243,18 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
         : [];
 
     const isEmpty = (!blockText || blockText.replace(/[\n\r]/g, "") === "") && !checked;
+    const showPlaceholder = isEmpty && isFocused;
+
+    const handleFocus: React.FocusEventHandler<HTMLParagraphElement> = (e) => {
+        setIsFocused(true);
+        onFocus?.(e);
+    };
+
+    const handleBlur: React.FocusEventHandler<HTMLParagraphElement> = (e) => {
+        setIsFocused(false);
+        onBlur?.(e);
+    };
+
     return <div className="relative w-full">
         {/* Highlight layer */}
         <div
@@ -222,7 +262,7 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
             aria-hidden
         >
             {blockType === "paragraph" && (
-                isEmpty ? (
+                showPlaceholder ? (
                     <p className="text-gray-500 dark:text-gray-400">Write something or press &quot;/&quot; for commands</p>
                 ) : (
                     <HighlightedText text={blockText} />
@@ -231,12 +271,21 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
             {blockType === "todo" && (
                 <>
                     <span className="size-4" />
-                    {isEmpty ? (
+                    {showPlaceholder ? (
                         <p className="text-gray-500 dark:text-gray-400">Write something or press &quot;/&quot; for commands</p>
                     ) : (
                         <HighlightedText text={blockText} lineThrough={checked} />
                     )}
                 </>
+            )}
+            {blockType === "heading" && (
+                <div className={HEADING_CLASSES[headingLevel]}>
+                    {showPlaceholder ? (
+                        <p className="text-gray-500 dark:text-gray-400 font-normal">Write something or press &quot;/&quot; for commands</p>
+                    ) : (
+                        <HighlightedText text={blockText} />
+                    )}
+                </div>
             )}
         </div>
 
@@ -246,6 +295,18 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
                 ref={contentRef}
                 className="flex-1 focus:outline-none text-transparent bg-transparent focus:ring-0 text-base sm:text-lg caret-black dark:caret-white"
                 onInput={(e) => { handleBlockChange(e); setBlockText(e.currentTarget.innerText); }}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
+                {...props}
+            /></div>}
+
+        {blockType === "heading" && <div className="border-l-2 pl-2 flex items-center">
+            <p contentEditable suppressContentEditableWarning
+                ref={contentRef}
+                className={`flex-1 focus:outline-none text-transparent bg-transparent focus:ring-0 caret-black dark:caret-white ${HEADING_CLASSES[headingLevel]}`}
+                onInput={(e) => { handleBlockChange(e); setBlockText(e.currentTarget.innerText); }}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
                 {...props}
             /></div>}
 
@@ -258,6 +319,8 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
                 ref={contentRef}
                 className={`flex-1 focus:outline-none text-transparent bg-transparent focus:ring-0 text-base sm:text-lg caret-black dark:caret-white`}
                 onInput={(e) => { handleBlockChange(e); setBlockText(e.currentTarget.innerText); }}
+                onFocus={handleFocus}
+                onBlur={handleBlur}
                 {...props}
             /></div>}
 
@@ -267,7 +330,7 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
             <SlashMenu
                 items={filtered}
                 onSelect={(cmd) => {
-                    if (blockType != cmd.id) {
+                    if (blockType != cmd.type || headingLevel != cmd.level) {
                         console.log("old text: " + blockText);
                         const newText = blockText.replace(`/${menu.query}`, "");
                         console.log("new text: " + newText);
@@ -277,7 +340,10 @@ const BlockEditor = React.forwardRef<HTMLDivElement, BlockEditorProps>(({ block,
                                 contentRef.current.innerText = newText.replace(/ $/, '\u00A0'); // with trailing spaces
                             }
                         }, 0);
-                        setBlockType(cmd.id as BlockType)
+                        setBlockType(cmd.type)
+                        if (cmd.level) {
+                            setHeadingLevel(cmd.level);
+                        }
                     }
                     setMenu({ open: false, query: "" })
                 }}

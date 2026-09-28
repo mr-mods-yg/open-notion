@@ -40,6 +40,11 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ bl
             status: 400
         });
     }
+    if (body.level != null && ![1, 2, 3, 4].includes(body.level)) {
+        return NextResponse.json({ error: "Bad Request : Invalid level" }, {
+            status: 400
+        });
+    }
     let block;
     if (inputBlockType == "paragraph") {
         block = await prisma.block.update({
@@ -62,6 +67,18 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ bl
             data: {
                 type: inputBlockType,
                 content: { task: body.task ? body.task : false, text: body.text || "" }
+            }
+        })
+    }
+    else if (inputBlockType == "heading") {
+        block = await prisma.block.update({
+            where: {
+                id: blockId,
+                userId
+            },
+            data: {
+                type: inputBlockType,
+                content: { text: body.text || "", level: body.level ? body.level : 2 }
             }
         })
     }

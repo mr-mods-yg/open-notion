@@ -280,7 +280,7 @@ const TextPageEditor = ({ pageId }: { pageId: string }) => {
     }
     return (
         <div className="flex flex-1 flex-col gap-8 px-4 py-8 md:px-16 md:py-16">
-            <TextareaAutosize placeholder='Your Title' maxRows={2} className='text-lg sm:text-2xl focus:outline-none focus:ring-0 resize-none' value={inputTitle} onChange={(e) => { setInputTitle(e.target.value) }} />
+            <TextareaAutosize placeholder='Your Title' maxRows={2} className='text-3xl sm:text-4xl font-semibold focus:outline-none focus:ring-0 resize-none' value={inputTitle} onChange={(e) => { setInputTitle(e.target.value) }} />
             <div className='flex flex-col gap-2'>
                 {blocks.map((block) =>
                     <BlockEditor
